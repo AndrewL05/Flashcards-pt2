@@ -82,16 +82,16 @@ const App = () => {
     e.preventDefault();
     const correctAnswer = cards[next].answer.toLowerCase();
     const userAnswerLower = userAnswer.toLowerCase();
-  
+
     // Checks if the current card has already been answered correctly
     if (correctlyAnsweredCards.includes(next)) {
       return; // Prevent further submissions for this card
     }
-  
+
     const isAnswerCorrect = (correctAnswer.includes(userAnswerLower) || userAnswerLower.includes(correctAnswer));
-  
+
     setIsCorrect(isAnswerCorrect);
-  
+
     if (isAnswerCorrect) {
       setCurrentStreak((prev) => prev + 1);
       if (currentStreak + 1 > longestStreak) {
@@ -136,7 +136,9 @@ const App = () => {
             placeholder="Type your answer here..."
             className={`answer-input ${isCorrect === true ? 'correct' : isCorrect === false ? 'incorrect' : ''}`}
           />
-          <button type="submit" disabled={correctlyAnsweredCards.includes(next) || userAnswer.trim() === ''}>Check Answer</button>
+          <button type="submit" disabled={correctlyAnsweredCards.includes(next) || userAnswer.trim() === ''}>
+            Check Answer
+          </button>
         </form>
         {isCorrect !== null && (
           <div className={`feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
