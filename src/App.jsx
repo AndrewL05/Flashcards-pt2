@@ -31,6 +31,7 @@ const App = () => {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
   const [masteredCards, setMasteredCards] = useState([]);
+  const [correctlyAnsweredCards, setCorrectlyAnsweredCards] = useState([]);
 
   const flipCard = () => {
     setFlip(!flip);
@@ -41,6 +42,8 @@ const App = () => {
     setFlip(false);
     setUserAnswer('');
     setIsCorrect(null);
+    setCorrectlyAnsweredCards([]);
+    setCurrentCategory(cards[(next + 1) % cards.length].category); 
   };
 
   const backPage = () => {
@@ -48,6 +51,8 @@ const App = () => {
     setFlip(false);
     setUserAnswer('');
     setIsCorrect(null);
+    setCorrectlyAnsweredCards([]);
+    setCurrentCategory(cards[(next - 1 + cards.length) % cards.length].category); 
   };
 
   const shuffleCards = () => {
@@ -62,6 +67,7 @@ const App = () => {
     setFlip(false);
     setUserAnswer('');
     setIsCorrect(null);
+    setCorrectlyAnsweredCards([]);
 
     if (visitedCards.length === cards.length - 1) {
       setVisitedCards([]);
@@ -76,32 +82,37 @@ const App = () => {
     e.preventDefault();
     const correctAnswer = cards[next].answer.toLowerCase();
     const userAnswerLower = userAnswer.toLowerCase();
-
-    if (userAnswerLower === '') {
-      setIsCorrect(false); // handles empty input
-      setCurrentStreak(0);
-      return;
+  
+    // Checks if the current card has already been answered correctly
+    if (correctlyAnsweredCards.includes(next)) {
+      return; // Prevent further submissions for this card
     }
-
+  
     const isAnswerCorrect = (correctAnswer.includes(userAnswerLower) || userAnswerLower.includes(correctAnswer));
-
+  
     setIsCorrect(isAnswerCorrect);
+  
     if (isAnswerCorrect) {
       setCurrentStreak((prev) => prev + 1);
       if (currentStreak + 1 > longestStreak) {
         setLongestStreak(currentStreak + 1);
       }
+      // Adds the current card to the list of correctly answered cards
+      setCorrectlyAnsweredCards([...correctlyAnsweredCards, next]);
     } else {
       setCurrentStreak(0);
     }
   };
 
   const markAsMastered = () => {
-    setMasteredCards([...masteredCards, cards[next]]);
-    setNext((prev) => (prev + 1) % cards.length); // Move to the next card
+    setMasteredCards([...masteredCards, cards[next]]); 
+    const nextCardIndex = (next + 1) % cards.length; 
+    setNext(nextCardIndex); 
+    setCurrentCategory(cards[nextCardIndex].category); 
     setFlip(false);
     setUserAnswer('');
     setIsCorrect(null);
+    setCorrectlyAnsweredCards([]);
   };
 
   return (
@@ -125,7 +136,7 @@ const App = () => {
             placeholder="Type your answer here..."
             className={`answer-input ${isCorrect === true ? 'correct' : isCorrect === false ? 'incorrect' : ''}`}
           />
-          <button type="submit">Check Answer</button>
+          <button type="submit" disabled={correctlyAnsweredCards.includes(next) || userAnswer.trim() === ''}>Check Answer</button>
         </form>
         {isCorrect !== null && (
           <div className={`feedback ${isCorrect ? 'correct' : 'incorrect'}`}>
